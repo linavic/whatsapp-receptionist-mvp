@@ -1,0 +1,53 @@
+{
+  "customers": [
+    {
+      "id": "cus_1780664226747_1",
+      "phone": "972500000000",
+      "chatId": "972500000000@c.us",
+      "name": "Demo Client",
+      "firstSeenAt": "2026-06-05T12:57:06.747Z",
+      "lastSeenAt": "2026-06-05T12:57:06.747Z",
+      "status": "active"
+    }
+  ],
+  "leads": [
+    {
+      "id": "lead_1780664226751_1",
+      "customerId": "cus_1780664226747_1",
+      "serviceId": "facial",
+      "serviceName": "טיפול פנים",
+      "status": "new",
+      "followupStep": 0,
+      "createdAt": "2026-06-05T12:57:06.751Z"
+    }
+  ],
+  "appointments": [
+    {
+      "id": "apt_1780664226753_1",
+      "customerId": "cus_1780664226747_1",
+      "serviceId": "facial",
+      "serviceName": "טיפול פנים",
+      "startsAt": null,
+      "endsAt": null,
+      "status": "requested",
+      "source": "whatsapp",
+      "createdAt": "2026-06-05T12:57:06.753Z"
+    }
+  ],
+  "events": [
+    {
+      "id": "evt_1780664226749_1",
+      "type": "incoming_webhook",
+      "payload": {
+        "chatId": "972500000000@c.us",
+        "payload": "service_select:facial",
+        "body": {
+          "chatId": "972500000000@c.us",
+          "payload": "service_select:facial",
+          "senderName": "Demo Client"
+        }
+      },
+      "createdAt": "2026-06-05T12:57:06.749Z"
+    }
+  ]
+}
