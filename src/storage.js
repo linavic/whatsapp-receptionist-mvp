@@ -11,6 +11,7 @@ const initialDb = {
   customers: [],
   leads: [],
   appointments: [],
+  leadAnswers: [],
   events: []
 };
 
@@ -23,12 +24,23 @@ async function ensureDb() {
 
 export async function readDb() {
   await ensureDb();
-  return JSON.parse(await readFile(dbPath, "utf8"));
+  const db = JSON.parse(await readFile(dbPath, "utf8"));
+  return normalizeDb(db);
 }
 
 export async function writeDb(db) {
   await ensureDb();
-  await writeFile(dbPath, JSON.stringify(db, null, 2), "utf8");
+  await writeFile(dbPath, JSON.stringify(normalizeDb(db), null, 2), "utf8");
+}
+
+function normalizeDb(db) {
+  return {
+    customers: Array.isArray(db.customers) ? db.customers : [],
+    leads: Array.isArray(db.leads) ? db.leads : [],
+    appointments: Array.isArray(db.appointments) ? db.appointments : [],
+    leadAnswers: Array.isArray(db.leadAnswers) ? db.leadAnswers : [],
+    events: Array.isArray(db.events) ? db.events : []
+  };
 }
 
 export async function logEvent(type, payload) {
@@ -78,6 +90,59 @@ export async function createLead({ customerId, serviceId, serviceName }) {
     createdAt: new Date().toISOString()
   };
   db.leads.push(lead);
+  await writeDb(db);
+  return lead;
+}
+
+export async function createSiteLead({ customerId, source = "website", form = {} }) {
+  const db = await readDb();
+  const lead = {
+    id: `lead_${Date.now()}_${db.leads.length + 1}`,
+    customerId,
+    serviceId: "flashmodel",
+    serviceName: "Flash Model",
+    status: "new_site_lead",
+    source,
+    form,
+    followupStep: 0,
+    createdAt: new Date().toISOString()
+  };
+  db.leads.push(lead);
+  await writeDb(db);
+  return lead;
+}
+
+export async function findLatestLeadByCustomer(customerId) {
+  const db = await readDb();
+  return [...db.leads].reverse().find((lead) => lead.customerId === customerId) ?? null;
+}
+
+export async function saveLeadAnswer({ customerId, leadId, questionId, answer }) {
+  const db = await readDb();
+  const item = {
+    id: `ans_${Date.now()}_${db.leadAnswers.length + 1}`,
+    customerId,
+    leadId,
+    questionId,
+    answer,
+    createdAt: new Date().toISOString()
+  };
+  db.leadAnswers.push(item);
+  await writeDb(db);
+  return item;
+}
+
+export async function getLeadAnswers(leadId) {
+  const db = await readDb();
+  return db.leadAnswers.filter((answer) => answer.leadId === leadId);
+}
+
+export async function updateLeadStatus(leadId, status) {
+  const db = await readDb();
+  const lead = db.leads.find((item) => item.id === leadId);
+  if (!lead) return null;
+  lead.status = status;
+  lead.updatedAt = new Date().toISOString();
   await writeDb(db);
   return lead;
 }

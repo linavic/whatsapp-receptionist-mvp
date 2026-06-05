@@ -1,4 +1,8 @@
 export function createFirstReply(config) {
+  if (config.leadFlow?.enabled) {
+    return createLeadIntroReply(config, {});
+  }
+
   return {
     text: `שלום, הגעת ל-${config.business.name}. איך אפשר לעזור?`,
     buttons: [
@@ -7,6 +11,63 @@ export function createFirstReply(config) {
       { text: "נציג אנושי", payload: config.payloads.humanHelp }
     ]
   };
+}
+
+export function createLeadIntroReply(config, lead = {}) {
+  const firstQuestion = config.leadFlow.questions[0];
+  const name = lead.name || "נעים מאוד";
+  return {
+    text: config.leadFlow.intro.replace("{name}", name),
+    buttons: firstQuestion.buttons
+  };
+}
+
+export function createLeadQuestionReply(config, questionIndex) {
+  const question = config.leadFlow.questions[questionIndex];
+  if (!question) return createIntroCallConfirmedReply();
+  return {
+    text: question.text,
+    buttons: question.buttons
+  };
+}
+
+export function createIntroCallConfirmedReply() {
+  return {
+    text: "מצוין, הבקשה לשיחת היכרות התקבלה ✅\n\nנציג אנושי יעבור על הפרטים ויחזור אליך בהקדם.",
+    buttons: [
+      { text: "לדבר עם נציג", payload: "human_help" }
+    ]
+  };
+}
+
+export function createLeadOwnerAlertText({ customer, lead, answers = [], callTiming = "" }) {
+  const answerLines = answers.map((item) => `- ${item.questionId}: ${item.answer}`);
+  return [
+    "בקשה לשיחת היכרות - Flash Model",
+    "",
+    `שם: ${customer.name || "לא צוין"}`,
+    `טלפון: ${customer.phone}`,
+    `מקור: ${lead?.source || "website"}`,
+    callTiming ? `זמן מועדף: ${callTiming}` : "",
+    "",
+    "תשובות הלקוח:",
+    ...(answerLines.length ? answerLines : ["- טרם נשמרו תשובות"])
+  ].filter(Boolean).join("\n");
+}
+
+export function getLeadQuestionIndex(config, questionId) {
+  return config.leadFlow.questions.findIndex((question) => question.id === questionId);
+}
+
+export function parseLeadAnswerPayload(payload) {
+  const [, questionId, answer] = payload.split(":");
+  if (!questionId || !answer) return null;
+  return { questionId, answer };
+}
+
+export function parseIntroCallPayload(payload) {
+  const [, timing] = payload.split(":");
+  return timing || "";
 }
 
 export function createServiceReply(config) {
@@ -109,6 +170,25 @@ export function formatAppointmentTime(value) {
 
 export function handlePayload(config, payload) {
   if (!payload) return createFirstReply(config);
+
+  if (config.leadFlow?.enabled) {
+    if (payload.startsWith("lead_answer:")) {
+      const parsed = parseLeadAnswerPayload(payload);
+      const currentIndex = getLeadQuestionIndex(config, parsed?.questionId);
+      return createLeadQuestionReply(config, currentIndex + 1);
+    }
+
+    if (payload.startsWith("intro_call_request:")) {
+      return createIntroCallConfirmedReply();
+    }
+
+    if (payload === config.payloads.humanHelp) {
+      return {
+        text: "נציג אנושי קיבל את הבקשה ויחזור אליך בהקדם.",
+        buttons: []
+      };
+    }
+  }
 
   if (payload === config.payloads.startBooking || payload === config.payloads.showServices) {
     return createServiceReply(config);

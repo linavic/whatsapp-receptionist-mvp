@@ -1,0 +1,97 @@
+{
+  "business": {
+    "id": "flashmodel",
+    "name": "Flash Model",
+    "industry": "lead_intro_call",
+    "ownerName": "A.S Biz",
+    "ownerWhatsApp": "972559121250",
+    "businessWhatsApp": "972559121250",
+    "timezone": "Asia/Jerusalem",
+    "tone": "professional_warm",
+    "siteUrl": "https://flashmodel.as-biz.com"
+  },
+  "leadFlow": {
+    "enabled": true,
+    "goal": "intro_call",
+    "sourceName": "Flash Model website",
+    "intro": "שלום {name}, קיבלנו את הפרטים שלך באתר Flash Model. כדי שנכוון אותך נכון, אשאל 2 שאלות קצרות ואז אפשר לתאם שיחת היכרות עם נציג אנושי.",
+    "questions": [
+      {
+        "id": "interest",
+        "text": "מה הכי מעניין אותך כרגע?",
+        "buttons": [
+          {
+            "text": "להבין איך זה עובד",
+            "payload": "lead_answer:interest:understand"
+          },
+          {
+            "text": "מחיר וזמני הקמה",
+            "payload": "lead_answer:interest:pricing"
+          },
+          {
+            "text": "התאמה לעסק שלי",
+            "payload": "lead_answer:interest:fit"
+          }
+        ]
+      },
+      {
+        "id": "goal",
+        "text": "מה המטרה העיקרית שלך?",
+        "buttons": [
+          {
+            "text": "יותר פניות מלקוחות",
+            "payload": "lead_answer:goal:more_leads"
+          },
+          {
+            "text": "דמו/נראות מקצועית",
+            "payload": "lead_answer:goal:demo"
+          },
+          {
+            "text": "ייעוץ לפני החלטה",
+            "payload": "lead_answer:goal:consult"
+          }
+        ]
+      },
+      {
+        "id": "timing",
+        "text": "מתי נוח לך שנציג אנושי יחזור אליך לשיחת היכרות?",
+        "buttons": [
+          {
+            "text": "היום",
+            "payload": "intro_call_request:today"
+          },
+          {
+            "text": "מחר",
+            "payload": "intro_call_request:tomorrow"
+          },
+          {
+            "text": "שלחו לי הודעה קודם",
+            "payload": "intro_call_request:message_first"
+          }
+        ]
+      }
+    ],
+    "humanFallbackPayload": "human_help"
+  },
+  "payloads": {
+    "startBooking": "start_booking",
+    "showServices": "show_services",
+    "humanHelp": "human_help",
+    "serviceSelect": "service_select:{service_id}",
+    "appointmentConfirm": "appointment_confirm:{appointment_id}",
+    "appointmentCancel": "appointment_cancel:{appointment_id}",
+    "appointmentReschedule": "appointment_reschedule:{appointment_id}",
+    "slotReserve": "slot_reserve:{slot_id}",
+    "slotDecline": "slot_decline:{slot_id}"
+  },
+  "services": [],
+  "workingHours": {
+    "sunday": ["09:00-18:00"],
+    "monday": ["09:00-18:00"],
+    "tuesday": ["09:00-18:00"],
+    "wednesday": ["09:00-18:00"],
+    "thursday": ["09:00-18:00"],
+    "friday": ["09:00-13:00"],
+    "saturday": []
+  }
+}
