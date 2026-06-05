@@ -12,9 +12,9 @@ import {
   toGreenApiInteractiveButtons
 } from "./green-api-adapter.js";
 import {
-  createAppointmentRequest,
   createLead,
   logEvent,
+  scheduleAppointment,
   updateAppointmentStatus,
   upsertCustomer
 } from "./storage.js";
@@ -46,7 +46,7 @@ const server = http.createServer(async (request, response) => {
       sendJson(response, 200, {
         ok: true,
         product: "whatsapp-receptionist-mvp",
-        version: "2026-06-05-webhook-filter"
+        version: "2026-06-05-real-booking"
       });
       return;
     }
@@ -86,18 +86,51 @@ const server = http.createServer(async (request, response) => {
         const service = config.services.find((item) => item.id === serviceId);
         const serviceName = service?.name ?? serviceId;
         await createLead({ customerId: customer.id, serviceId, serviceName });
-        const appointment = await createAppointmentRequest({ customerId: customer.id, serviceId, serviceName });
+      }
 
-        if (ownerAlertChatId) {
-          await sendGreenApiInteractiveButtons({
-            ...greenApiSettings,
-            chatId: ownerAlertChatId,
-            reply: {
-              text: createOwnerAlertText({ customer, serviceName, appointment }),
-              buttons: []
-            }
+      if (payload?.startsWith("slot_reserve:")) {
+        const appointmentDetails = reply.appointment;
+        if (appointmentDetails?.startsAt) {
+          const service = config.services.find((item) => item.id === appointmentDetails.serviceId);
+          const result = await scheduleAppointment({
+            customerId: customer.id,
+            serviceId: appointmentDetails.serviceId,
+            serviceName: appointmentDetails.serviceName,
+            startsAt: appointmentDetails.startsAt,
+            durationMinutes: service?.durationMinutes ?? 60
           });
+
+          if (result.conflict) {
+            reply.text = "התור הזה כבר נתפס. אפשר לבחור מועד אחר.";
+            reply.buttons = [{ text: "בחירת מועד אחר", payload: `service_select:${appointmentDetails.serviceId}` }];
+          } else if (ownerAlertChatId) {
+            reply.buttons = [
+              { text: "ביטול תור", payload: `appointment_cancel:${result.appointment.id}` },
+              { text: "נציג אנושי", payload: config.payloads.humanHelp }
+            ];
+            await sendGreenApiInteractiveButtons({
+              ...greenApiSettings,
+              chatId: ownerAlertChatId,
+              reply: {
+                text: createOwnerAlertText({ customer, serviceName: appointmentDetails.serviceName, appointment: result.appointment }),
+                buttons: []
+              }
+            });
+          }
         }
+      }
+
+      if (payload?.startsWith("service_select:") && ownerAlertChatId) {
+        const serviceId = payload.split(":")[1];
+        const service = config.services.find((item) => item.id === serviceId);
+        await sendGreenApiInteractiveButtons({
+          ...greenApiSettings,
+          chatId: ownerAlertChatId,
+          reply: {
+            text: `לקוחה בחרה טיפול:\n\nלקוחה: ${customer.name || customer.phone}\nטלפון: ${customer.phone}\nטיפול: ${service?.name ?? serviceId}`,
+            buttons: []
+          }
+        });
       }
 
       if (payload?.startsWith("appointment_confirm:")) {

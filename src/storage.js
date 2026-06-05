@@ -100,6 +100,29 @@ export async function createAppointmentRequest({ customerId, serviceId, serviceN
   return appointment;
 }
 
+export async function scheduleAppointment({ customerId, serviceId, serviceName, startsAt, durationMinutes = 60 }) {
+  const db = await readDb();
+  const existing = db.appointments.find((item) => item.startsAt === startsAt && item.status === "confirmed");
+  if (existing) return { appointment: existing, conflict: true };
+
+  const start = new Date(startsAt);
+  const end = new Date(start.getTime() + durationMinutes * 60 * 1000);
+  const appointment = {
+    id: `apt_${Date.now()}_${db.appointments.length + 1}`,
+    customerId,
+    serviceId,
+    serviceName,
+    startsAt,
+    endsAt: end.toISOString(),
+    status: "confirmed",
+    source: "whatsapp",
+    createdAt: new Date().toISOString()
+  };
+  db.appointments.push(appointment);
+  await writeDb(db);
+  return { appointment, conflict: false };
+}
+
 export async function updateAppointmentStatus(appointmentId, status) {
   const db = await readDb();
   const appointment = db.appointments.find((item) => item.id === appointmentId);
@@ -109,4 +132,3 @@ export async function updateAppointmentStatus(appointmentId, status) {
   await writeDb(db);
   return appointment;
 }
-

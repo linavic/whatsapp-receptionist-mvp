@@ -23,35 +23,49 @@ export async function sendGreenApiInteractiveButtons({ baseUrl, idInstance, apiT
     return sendGreenApiMessage({ baseUrl, idInstance, apiTokenInstance, chatId, message: reply.text });
   }
 
-  const url = `${baseUrl}/waInstance${idInstance}/sendInteractiveButtonsReply/${apiTokenInstance}`;
-  const response = await fetch(url, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify(toGreenApiInteractiveButtons(chatId, reply))
-  });
-  const body = await response.text();
+  try {
+    const url = `${baseUrl}/waInstance${idInstance}/sendInteractiveButtonsReply/${apiTokenInstance}`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(toGreenApiInteractiveButtons(chatId, reply))
+    });
+    const body = await response.text();
 
-  return {
-    ok: response.ok,
-    status: response.status,
-    body
-  };
+    return {
+      ok: response.ok,
+      status: response.status,
+      body
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      error: error.message
+    };
+  }
 }
 
 export async function sendGreenApiMessage({ baseUrl, idInstance, apiTokenInstance, chatId, message }) {
-  const url = `${baseUrl}/waInstance${idInstance}/sendMessage/${apiTokenInstance}`;
-  const response = await fetch(url, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ chatId, message })
-  });
-  const body = await response.text();
+  try {
+    const url = `${baseUrl}/waInstance${idInstance}/sendMessage/${apiTokenInstance}`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ chatId, message })
+    });
+    const body = await response.text();
 
-  return {
-    ok: response.ok,
-    status: response.status,
-    body
-  };
+    return {
+      ok: response.ok,
+      status: response.status,
+      body
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      error: error.message
+    };
+  }
 }
 
 export function extractIncomingPayload(body) {

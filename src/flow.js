@@ -24,13 +24,87 @@ export function createServiceReply(config) {
 
 export function createOwnerAlertText({ customer, serviceName, appointment }) {
   return [
-    "New appointment request:",
+    "תור חדש נקבע:",
     "",
-    `Customer: ${customer.name || customer.phone}`,
-    `Phone: ${customer.phone}`,
-    `Service: ${serviceName}`,
-    `Appointment ID: ${appointment.id}`
+    `לקוחה: ${customer.name || customer.phone}`,
+    `טלפון: ${customer.phone}`,
+    `טיפול: ${serviceName}`,
+    `מועד: ${formatAppointmentTime(appointment.startsAt)}`,
+    `מספר תור: ${appointment.id}`
   ].join("\n");
+}
+
+const dayKeys = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+
+export function createSlotOptions(config, serviceId) {
+  const preferredTimes = [
+    { hour: 10, minute: 0 },
+    { hour: 12, minute: 0 },
+    { hour: 16, minute: 30 }
+  ];
+  const slots = [];
+
+  for (let offset = 1; offset <= 14 && slots.length < 3; offset += 1) {
+    const date = new Date();
+    date.setDate(date.getDate() + offset);
+    const ranges = config.workingHours?.[dayKeys[date.getDay()]] ?? [];
+    if (ranges.length === 0) continue;
+
+    for (const time of preferredTimes) {
+      if (!isTimeInsideRanges(time, ranges)) continue;
+      date.setHours(time.hour, time.minute, 0, 0);
+      const token = [
+        date.getFullYear(),
+        String(date.getMonth() + 1).padStart(2, "0"),
+        String(date.getDate()).padStart(2, "0"),
+        String(time.hour).padStart(2, "0"),
+        String(time.minute).padStart(2, "0")
+      ].join("");
+
+      const startsAt = `${token.slice(0, 4)}-${token.slice(4, 6)}-${token.slice(6, 8)}T${token.slice(8, 10)}:${token.slice(10, 12)}:00+03:00`;
+      slots.push({
+        token,
+        startsAt,
+        label: formatAppointmentTime(startsAt),
+        payload: `slot_reserve:${serviceId}:${token}`
+      });
+      if (slots.length >= 3) break;
+    }
+  }
+
+  return slots;
+}
+
+function isTimeInsideRanges(time, ranges) {
+  const minutes = time.hour * 60 + time.minute;
+  return ranges.some((range) => {
+    const [start, end] = range.split("-");
+    const [startHour, startMinute] = start.split(":").map(Number);
+    const [endHour, endMinute] = end.split(":").map(Number);
+    return minutes >= startHour * 60 + startMinute && minutes < endHour * 60 + endMinute;
+  });
+}
+
+export function parseSlotPayload(payload) {
+  const [, serviceId, token] = payload.split(":");
+  if (!serviceId || !token || token.length !== 12) return null;
+  return {
+    serviceId,
+    token,
+    startsAt: `${token.slice(0, 4)}-${token.slice(4, 6)}-${token.slice(6, 8)}T${token.slice(8, 10)}:${token.slice(10, 12)}:00+03:00`
+  };
+}
+
+export function formatAppointmentTime(value) {
+  if (!value) return "טרם נקבע";
+  return new Intl.DateTimeFormat("he-IL", {
+    timeZone: "Asia/Jerusalem",
+    weekday: "short",
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit"
+  }).format(new Date(value));
 }
 
 export function handlePayload(config, payload) {
@@ -50,16 +124,15 @@ export function handlePayload(config, payload) {
   if (payload.startsWith("service_select:")) {
     const serviceId = payload.split(":")[1];
     const service = config.services.find((item) => item.id === serviceId);
+    const slots = createSlotOptions(config, serviceId);
     return {
-      text: `מעולה, קיבלנו את הבקשה שלך עבור ${service?.name ?? "הטיפול"}. נבדוק את הזמנים הקרובים ונחזור אלייך עם אפשרות לתור.`,
+      text: `מעולה. אלו התורים הפנויים הקרובים עבור ${service?.name ?? "הטיפול"}:`,
       ownerAlert: {
-        type: "appointment_request",
+        type: "service_selected",
         serviceId,
         serviceName: service?.name ?? serviceId
       },
-      buttons: [
-        { text: "נציג אנושי", payload: config.payloads.humanHelp }
-      ]
+      buttons: slots.map((slot) => ({ text: slot.label, payload: slot.payload }))
     };
   }
 
@@ -81,9 +154,19 @@ export function handlePayload(config, payload) {
   }
 
   if (payload.startsWith("slot_reserve:")) {
+    const slot = parseSlotPayload(payload);
+    const service = config.services.find((item) => item.id === slot?.serviceId);
     return {
-      text: "התור נשמר עבורך. נשלח אישור סופי בהקדם.",
-      buttons: []
+      text: `התור נקבע ואושר ✅\n\nטיפול: ${service?.name ?? "הטיפול"}\nמועד: ${formatAppointmentTime(slot?.startsAt)}\n\nנשלחה התראה לבעלת העסק.`,
+      buttons: [
+        { text: "ביטול תור", payload: `appointment_cancel:latest` },
+        { text: "נציג אנושי", payload: config.payloads.humanHelp }
+      ],
+      appointment: {
+        serviceId: slot?.serviceId,
+        serviceName: service?.name ?? slot?.serviceId,
+        startsAt: slot?.startsAt
+      }
     };
   }
 
