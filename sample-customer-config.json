@@ -1,0 +1,67 @@
+{
+  "business": {
+    "id": "demo_beauty_clinic",
+    "name": "Demo Beauty Clinic",
+    "industry": "beauty_clinic",
+    "ownerName": "Owner",
+    "ownerWhatsApp": "972500000000",
+    "businessWhatsApp": "972511111111",
+    "timezone": "Asia/Jerusalem",
+    "tone": "warm_professional",
+    "googleReviewUrl": "https://g.page/r/YOUR_REVIEW_LINK"
+  },
+  "booking": {
+    "mode": "owner_approval",
+    "minHoursBeforeBooking": 4,
+    "maxDaysAhead": 30,
+    "depositRequired": false,
+    "defaultReminderHours": [24, 2],
+    "cancelPolicyText": "You can cancel or reschedule up to 24 hours before the appointment."
+  },
+  "workingHours": {
+    "sunday": ["09:00-18:00"],
+    "monday": ["09:00-18:00"],
+    "tuesday": ["09:00-18:00"],
+    "wednesday": ["09:00-18:00"],
+    "thursday": ["09:00-18:00"],
+    "friday": ["09:00-13:00"],
+    "saturday": []
+  },
+  "services": [
+    {
+      "id": "facial",
+      "name": "Facial treatment",
+      "durationMinutes": 60,
+      "price": 300,
+      "depositRequired": false,
+      "active": true
+    },
+    {
+      "id": "pedicure",
+      "name": "Medical pedicure",
+      "durationMinutes": 45,
+      "price": 220,
+      "depositRequired": false,
+      "active": true
+    },
+    {
+      "id": "consultation",
+      "name": "Consultation",
+      "durationMinutes": 30,
+      "price": 0,
+      "depositRequired": false,
+      "active": true
+    }
+  ],
+  "payloads": {
+    "startBooking": "start_booking",
+    "showServices": "show_services",
+    "humanHelp": "human_help",
+    "serviceSelect": "service_select:{service_id}",
+    "appointmentConfirm": "appointment_confirm:{appointment_id}",
+    "appointmentCancel": "appointment_cancel:{appointment_id}",
+    "appointmentReschedule": "appointment_reschedule:{appointment_id}",
+    "slotReserve": "slot_reserve:{slot_id}",
+    "slotDecline": "slot_decline:{slot_id}"
+  }
+}

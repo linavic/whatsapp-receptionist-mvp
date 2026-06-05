@@ -1,0 +1,69 @@
+{
+  "business": {
+    "id": "demo_beauty_clinic_he",
+    "name": "קליניקת דמו",
+    "industry": "beauty_clinic",
+    "ownerName": "בעלת העסק",
+    "ownerWhatsApp": "972500000000",
+    "businessWhatsApp": "972511111111",
+    "timezone": "Asia/Jerusalem",
+    "tone": "warm_professional",
+    "googleReviewUrl": "https://g.page/r/YOUR_REVIEW_LINK"
+  },
+  "booking": {
+    "mode": "owner_approval",
+    "minHoursBeforeBooking": 4,
+    "maxDaysAhead": 30,
+    "depositRequired": false,
+    "defaultReminderHours": [24, 2],
+    "cancelPolicyText": "ניתן לבטל או לשנות תור עד 24 שעות לפני מועד התור."
+  },
+  "workingHours": {
+    "sunday": ["09:00-18:00"],
+    "monday": ["09:00-18:00"],
+    "tuesday": ["09:00-18:00"],
+    "wednesday": ["09:00-18:00"],
+    "thursday": ["09:00-18:00"],
+    "friday": ["09:00-13:00"],
+    "saturday": []
+  },
+  "services": [
+    {
+      "id": "facial",
+      "name": "טיפול פנים",
+      "durationMinutes": 60,
+      "price": 300,
+      "depositRequired": false,
+      "active": true
+    },
+    {
+      "id": "pedicure",
+      "name": "פדיקור רפואי",
+      "durationMinutes": 45,
+      "price": 220,
+      "depositRequired": false,
+      "active": true
+    },
+    {
+      "id": "consultation",
+      "name": "ייעוץ ראשוני",
+      "durationMinutes": 30,
+      "price": 0,
+      "depositRequired": false,
+      "active": true
+    }
+  ],
+  "payloads": {
+    "startBooking": "start_booking",
+    "showServices": "show_services",
+    "humanHelp": "human_help",
+    "serviceSelect": "service_select:{service_id}",
+    "appointmentConfirm": "appointment_confirm:{appointment_id}",
+    "appointmentCancel": "appointment_cancel:{appointment_id}",
+    "appointmentReschedule": "appointment_reschedule:{appointment_id}",
+    "slotReserve": "slot_reserve:{slot_id}",
+    "slotDecline": "slot_decline:{slot_id}",
+    "openReview": "open_review:{customer_id}",
+    "leadFollowupNo": "lead_followup_no:{lead_id}"
+  }
+}
