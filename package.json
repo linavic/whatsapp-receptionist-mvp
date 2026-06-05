@@ -8,6 +8,7 @@
     "smoke": "node scripts/smoke-test.js",
     "live-check": "node scripts/live-check.js",
     "configure-green-webhook": "node scripts/configure-green-webhook.js",
+    "configure-green-webhook-render": "node scripts/configure-green-webhook.js --render",
     "send-demo-message": "node scripts/send-demo-message.js"
   }
 }

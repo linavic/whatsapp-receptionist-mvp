@@ -44,7 +44,27 @@ Live demo send:
 
 ## Remaining To Become 24/7 Product
 
-A public backend URL is still required.
+Public backend URL provided:
+
+```text
+https://whatsapp-receptionist-mvp.onrender.com
+```
+
+Current verification attempt:
+
+- `/health` returned 200.
+- `/demo/start` returned 200 with Hebrew button flow.
+- `/webhook/green-api` accepted a simulated service selection payload.
+- Render webhook created a customer, lead, and appointment request.
+- Render webhook sent a live WhatsApp response through GREEN API.
+
+GREEN API is now configured directly to:
+
+```text
+https://whatsapp-receptionist-mvp.onrender.com/webhook/green-api
+```
+
+Make is no longer required for the core WhatsApp flow. It can still be used later for CRM, Google Sheets, reporting, or payment side effects.
 
 Current options:
 
@@ -55,11 +75,14 @@ Current options:
 
 ## Important
 
-GREEN API currently points to Make. For full automation, Make must forward incoming GREEN API webhook payloads to:
+Core live webhook:
 
 ```text
-https://YOUR_PUBLIC_BACKEND_URL/webhook/green-api
+https://whatsapp-receptionist-mvp.onrender.com/webhook/green-api
 ```
 
-Until the backend has a public URL, incoming customer replies can reach Make but cannot reach this backend automatically.
+Admin DB check:
 
+```text
+https://whatsapp-receptionist-mvp.onrender.com/admin/db
+```
