@@ -8,6 +8,7 @@ import {
   extractSenderName,
   extractSenderPhone,
   sendGreenApiInteractiveButtons,
+  shouldProcessWebhook,
   toGreenApiInteractiveButtons
 } from "./green-api-adapter.js";
 import {
@@ -59,6 +60,12 @@ const server = http.createServer(async (request, response) => {
 
     if (request.method === "POST" && request.url === "/webhook/green-api") {
       const body = await readJson(request);
+      if (!shouldProcessWebhook(body)) {
+        await logEvent("ignored_webhook", { typeWebhook: body?.typeWebhook ?? "unknown", body });
+        sendJson(response, 200, { ok: true, ignored: true, typeWebhook: body?.typeWebhook ?? "unknown" });
+        return;
+      }
+
       const chatId = extractChatId(body);
       const payload = extractIncomingPayload(body);
       const customer = await upsertCustomer({

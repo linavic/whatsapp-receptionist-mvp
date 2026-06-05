@@ -19,7 +19,7 @@ const settings = {
   webhookUrl,
   incomingWebhook: "yes",
   outgoingWebhook: "no",
-  outgoingAPIMessageWebhook: "yes",
+  outgoingAPIMessageWebhook: "no",
   stateWebhook: "yes",
   deviceWebhook: "yes",
   statusInstanceWebhook: "yes"

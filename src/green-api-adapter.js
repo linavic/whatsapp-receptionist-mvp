@@ -56,11 +56,17 @@ export async function sendGreenApiMessage({ baseUrl, idInstance, apiTokenInstanc
 
 export function extractIncomingPayload(body) {
   return (
+    body?.messageData?.interactiveButtonsResponse?.selectedId ||
     body?.messageData?.buttonsResponseMessage?.selectedButtonId ||
     body?.messageData?.interactiveMessage?.buttonReply?.id ||
     body?.payload ||
     null
   );
+}
+
+export function shouldProcessWebhook(body) {
+  if (body?.payload) return true;
+  return body?.typeWebhook === "incomingMessageReceived";
 }
 
 export function extractChatId(body) {
