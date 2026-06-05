@@ -1,0 +1,13 @@
+{
+  "name": "whatsapp-receptionist-mvp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "smoke": "node scripts/smoke-test.js",
+    "live-check": "node scripts/live-check.js",
+    "configure-green-webhook": "node scripts/configure-green-webhook.js",
+    "send-demo-message": "node scripts/send-demo-message.js"
+  }
+}
