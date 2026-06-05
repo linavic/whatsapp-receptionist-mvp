@@ -43,7 +43,11 @@ async function readJson(request) {
 const server = http.createServer(async (request, response) => {
   try {
     if (request.method === "GET" && request.url === "/health") {
-      sendJson(response, 200, { ok: true, product: "whatsapp-receptionist-mvp" });
+      sendJson(response, 200, {
+        ok: true,
+        product: "whatsapp-receptionist-mvp",
+        version: "2026-06-05-webhook-filter"
+      });
       return;
     }
 
